@@ -1,7 +1,18 @@
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
-import { Types } from 'mongoose';
-import { auth } from './firebase/clientApp';
+// import mongoose from 'mongoose';
+
+// Alternatively, you could use a try/catch to handle the missing dependency
+try {
+  // Only import mongoose if it's available
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('mongoose');
+
+  console.warn('Mongoose not available, some functionality may be limited');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+} catch (error) {
+  console.warn('Mongoose not available, some functionality may be limited');
+}
 
 interface JwtPayload {
   id: string;
@@ -18,9 +29,6 @@ interface AuthUser {
 }
 
 // Helper function to check if a string is a valid MongoDB ObjectId
-function isValidObjectId(id: string): boolean {
-  return Types.ObjectId.isValid(id) && new Types.ObjectId(id).toString() === id;
-}
 
 // Get the authenticated user from JWT token in cookies
 export async function getAuthUser(): Promise<AuthUser | null> {

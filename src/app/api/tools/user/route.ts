@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getUserTools } from '@/lib/tools-service-firebase';
-import { getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Try to get user from NextAuth session
     const session = await getServerSession();

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { stringify } from 'csv-stringify/sync';
+import { stringify } from 'csv-stringify';
 import { getAllTools } from '@/lib/tools-service-firebase';
 import { getAuthUser } from '@/lib/auth-server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     // Get authenticated user from token
     const user = await getAuthUser();
@@ -33,7 +33,19 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     });
     
     // Create response with CSV content
-    const response = new NextResponse(csv);
+    const csvString = await new Promise<string>((resolve, reject) => {
+      let result = '';
+      csv.on('readable', () => {
+        let chunk;
+        while ((chunk = csv.read()) !== null) {
+          result += chunk;
+        }
+      });
+      csv.on('error', (err) => reject(err));
+      csv.on('end', () => resolve(result));
+    });
+    
+    const response = new NextResponse(csvString);
     
     // Set appropriate headers
     response.headers.set('Content-Type', 'text/csv');

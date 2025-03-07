@@ -167,4 +167,16 @@ export async function createTool(tool: Tool) {
 }
 
 
+export async function getAllTools() {
+  const toolsRef = collection(db, 'tools');
+  const querySnapshot = await getDocs(toolsRef);
+  return querySnapshot.docs.map(doc => doc.data());
+}
+
+export async function getUserTools(userId: string) {
+  const toolsRef = collection(db, 'tools');
+  const q = query(toolsRef, where('userId', '==', userId));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => doc.data());
+}
 
