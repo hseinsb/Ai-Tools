@@ -205,7 +205,7 @@ export default function AddToolPage() {
               value={name}
               onChange={handleChange}
               onFocus={() => setFocusedField('name')}
-              onBlur={() => setFocusedField(null)}
+              onBlur={() => setFocusedField(null as never)}
               placeholder="e.g. ChatGPT"
               className="input-hover-effect shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none"
               required
@@ -246,7 +246,7 @@ export default function AddToolPage() {
                   value={customCategory}
                   onChange={handleChange}
                   onFocus={() => setFocusedField('customCategory')}
-                  onBlur={() => setFocusedField(null)}
+                  onBlur={() => setFocusedField(null as never)}
                   placeholder="e.g. 3D Generation"
                   className="input-hover-effect shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none"
                   required={category === 'Other'}
@@ -262,7 +262,7 @@ export default function AddToolPage() {
                 value={category}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('category')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => setFocusedField(null as never)}
                 className="sr-only"
                 required
               >
@@ -293,7 +293,7 @@ export default function AddToolPage() {
                 value={link}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('link')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => setFocusedField(null as never)}
                 placeholder="https://example.com"
                 className="input-hover-effect pl-10 shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none"
                 required
@@ -312,7 +312,7 @@ export default function AddToolPage() {
                 value={description}
                 onChange={handleChange}
                 onFocus={() => setFocusedField('description')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => setFocusedField(null as never)}
                 placeholder="Describe what this AI tool does..."
                 rows={4}
                 className="input-hover-effect shadow appearance-none border rounded w-full py-3 px-4 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none"

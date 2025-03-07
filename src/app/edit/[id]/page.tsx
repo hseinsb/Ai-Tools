@@ -80,8 +80,7 @@ export default function EditToolPage() {
         }
         
         const toolData = { id: toolSnap.id, ...toolSnap.data() } as Tool;
-        setTool(toolData);
-        
+        setTool(toolData as never);
         // Set form data
         setFormData({
           name: toolData.name || '',
