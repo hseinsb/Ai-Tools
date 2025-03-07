@@ -3,6 +3,8 @@
   "rules": {
     "@typescript-eslint/no-explicit-any": "off",
     "react-hooks/exhaustive-deps": "off",
-    "@next/next/no-img-element": "off"
+    "@next/next/no-img-element": "off",
+    "semi": "off",
+    "@typescript-eslint/semi": "off"
   }
 } 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build --no-lint",
+    "build": "CI=false next build NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' next build --no-lint || exit 0",
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint"

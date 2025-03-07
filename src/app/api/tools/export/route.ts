@@ -16,7 +16,7 @@ export async function GET(): Promise<NextResponse> {
     }
     
     // Fetch user's tools
-    const userTools = await getAllTools(user.id);
+    const userTools = await getAllTools();
     
     // Prepare data for CSV export
     const data = userTools.map((tool) => ({

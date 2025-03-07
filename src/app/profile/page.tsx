@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-async-client-component */
+ 
 /* eslint-disable react/no-unescaped-entities */
 'use client';
 

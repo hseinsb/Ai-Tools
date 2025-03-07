@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -20,10 +21,8 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const { login, loginWithGoogle, user } = useAuth();
   
-  // Get the callback URL from the query string
   const callbackUrl = searchParams?.get('callbackUrl') || '/profile';
   
-  // If user is already authenticated, redirect to the callback URL
   useEffect(() => {
     if (user) {
       setDebug(`User authenticated, redirecting to ${callbackUrl}`);
@@ -47,57 +46,31 @@ export default function LoginPage() {
       await login(email, password);
       setDebug('Login successful, checking user state...');
       
-      // The useEffect above should handle redirection once user state changes
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Login error:', err);
       
-      // Handle Firebase auth errors specifically for invalid credentials
-      if (typeof err === 'object' && err !== null && 'code' in err) {
+      if (err.code) {
         if (err.code === 'auth/invalid-credential') {
           setError('Invalid email or password. If you are a new user, please register first.');
         } else if (err.code === 'auth/user-not-found') {
           setError('No account exists with this email. Please register first.');
         } else if (err.code === 'auth/wrong-password') {
-        setError('Incorrect password. Please try again.');
-      } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many failed login attempts. Please try again later or reset your password.');
-      } else {
-        setError(typeof err === 'object' && err !== null && 'message' in err 
-          ? String(err.message) 
-          : 'Failed to log in');
+          setError('Incorrect password. Please try again.');
+        } else if (err.code === 'auth/too-many-requests') {
+          setError('Too many failed login attempts. Please try again later or reset your password.');
+        } else {
+          setError(err.message 
+            ? err.message 
+            : 'Failed to log in');
+        }
+        setDebug(`Login error: ${err.code || 'unknown'}`);
       }
-      setDebug(`Login error: ${err.code || 'unknown'}`);
     } finally {
       setIsLoading(false);
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      return;
-    }
-    
-    try {
-      setIsLoading(true);
-      setError('');
-      setDebug('Attempting login with email/password...');
-      
-      await login(email, password);
-      setDebug('Login successful, checking user state...');
-      
-      // The useEffect above should handle redirection once user state changes
-    } catch (err: unknown) {
-      console.error('Unexpected error:', err);
-      setError('An unexpected error occurred');
-      setDebug(`Unexpected error: ${err}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+  // Fixed: Moved subsequent functions outside of handleSubmit
   async function handleGoogleLogin() {
     try {
       setGoogleLoading(true);
@@ -107,7 +80,6 @@ export default function LoginPage() {
       await loginWithGoogle();
       setDebug('Google login successful, checking user state...');
       
-      // The useEffect above should handle redirection once user state changes
     } catch (err: any) {
       console.error('Google login error:', err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -121,7 +93,6 @@ export default function LoginPage() {
     }
   }
 
-  // Add test account creation function
   const createTestAccount = async () => {
     try {
       setDebug('Creating test account...');
@@ -132,14 +103,12 @@ export default function LoginPage() {
       await createUserWithEmailAndPassword(auth, testEmail, testPassword);
       
       setDebug('Test account created successfully.');
-      // Auto-fill the form with test credentials
       setEmail(testEmail);
       setPassword(testPassword);
     } catch (err: any) {
       console.error('Test account creation error:', err);
       if (err.code === 'auth/email-already-in-use') {
         setDebug('Test account already exists, you can use test@example.com with password: Password123!');
-        // Auto-fill anyway
         setEmail('test@example.com');
         setPassword('Password123!');
       } else {
@@ -240,7 +209,6 @@ export default function LoginPage() {
         </Link>
       </div>
       
-      {/* Add a developer mode toggle */}
       <div className="mt-6 text-center">
         <button 
           type="button"
@@ -271,5 +239,5 @@ export default function LoginPage() {
         )}
       </div>
     </div>
-  );  
+  );
 }
