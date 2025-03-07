@@ -167,7 +167,7 @@ export async function createTool(tool: Tool) {
 }
 
 
-export async function getAllTools(id: string) {
+export async function getAllTools(id?: string) {
   const toolsRef = collection(db, 'tools');
   const querySnapshot = await getDocs(toolsRef);
   return querySnapshot.docs.map(doc => doc.data());

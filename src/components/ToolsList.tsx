@@ -461,7 +461,7 @@ export default function ToolsList({ category, viewMode: propViewMode }: ToolsLis
               tool={{
                 ...tool,
                 createdAt: typeof tool.createdAt === 'object' ? tool.createdAt.toString() : tool.createdAt,
-                tags: tool.tags ? tool.tags.join(',') : undefined
+                tags: Array.isArray(tool.tags) ? tool.tags.join(',') : (typeof tool.tags === 'string' ? tool.tags : '')
               }}
               onUpdate={fetchTools}
               selectMode={selectMode}
@@ -489,7 +489,7 @@ export default function ToolsList({ category, viewMode: propViewMode }: ToolsLis
                     tool={{
                       ...tool,
                       createdAt: typeof tool.createdAt === 'object' ? tool.createdAt.toString() : tool.createdAt,
-                      tags: tool.tags ? tool.tags.join(',') : undefined
+                      tags: Array.isArray(tool.tags) ? tool.tags.join(',') : (typeof tool.tags === 'string' ? tool.tags : '')
                     }}
                     onUpdate={fetchTools}
                     selectMode={selectMode}
