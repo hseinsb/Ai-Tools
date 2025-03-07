@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase/clientApp';
-import { v4 as uuidv4 } from 'uuid';
 
 // Utility function to parse CSV content
 function parseCSV(csvText: string) {

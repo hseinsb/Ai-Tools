@@ -31,7 +31,7 @@ export default function ToolsList({ category, viewMode: propViewMode }: ToolsLis
   const [tools, setTools] = useState<Tool[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [categories] = useState<string[]>(['All', 'Productivity', 'Content Creation', 'Development']);
+  const [] = useState<string[]>(['All', 'Productivity', 'Content Creation', 'Development']);
   const [selectedCategory, setSelectedCategory] = useState<string>(category || 'All');
   const [selectedTools, setSelectedTools] = useState<string[]>([]);
   const [selectMode, setSelectMode] = useState(false);
@@ -207,13 +207,6 @@ export default function ToolsList({ category, viewMode: propViewMode }: ToolsLis
   };
 
   // Toggle select all tools
-  const toggleSelectAll = () => {
-    if (selectedTools.length === tools.length) {
-      setSelectedTools([]);
-    } else {
-      setSelectedTools(tools.map(tool => tool.id));
-    }
-  };
 
   // Function to handle bulk deletion
   const handleBulkDelete = async () => {
@@ -281,10 +274,6 @@ export default function ToolsList({ category, viewMode: propViewMode }: ToolsLis
   };
 
   // Handle export selected tools
-  const handleExport = () => {
-    // Implementation for export
-    console.log('Export:', selectedTools);
-  };
 
   // Effect to fetch tools when user changes
   useEffect(() => {

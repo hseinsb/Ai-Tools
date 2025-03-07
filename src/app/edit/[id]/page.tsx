@@ -23,7 +23,7 @@ interface Tool {
 }
 
 export default function EditToolPage() {
-  const [tool, setTool] = useState<Tool | null>(null);
+  const [setTool] = useState<Tool | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({

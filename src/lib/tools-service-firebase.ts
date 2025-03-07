@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collection, addDoc, serverTimestamp, getDocs, where, query, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/clientApp';
+import { Tool } from '../../types';
 
 // Utility function to parse CSV content
 function parseCSV(csvText: string) {
@@ -159,4 +160,11 @@ export async function updateTool(toolId: string, userId: string) {
     throw new Error('User ID is required to update a tool');
   }
 }
+
+export async function createTool(tool: Tool) {
+  const docRef = await addDoc(collection(db, 'tools'), tool);
+  return docRef.id;
+}
+
+
 

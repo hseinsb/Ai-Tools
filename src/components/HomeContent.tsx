@@ -9,7 +9,7 @@ import '@/styles/animations.css';
 import { useAuth } from '@/components/AuthProvider';
 
 export default function HomeContent() {
-  const [viewMode, setViewMode] = useState<'flat' | 'byCategory'>('flat'); // Match ToolsList terminology
+  const [viewMode] = useState<'flat' | 'byCategory'>('flat'); // Match ToolsList terminology
   useAuth();
   
   return (
