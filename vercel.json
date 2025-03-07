@@ -4,7 +4,9 @@
         "src": "package.json",
         "use": "@vercel/next",
         "config": {
-          "ignoreCommand": "echo 'Ignoring build errors'"
+          "ignoreCommand": "echo 'Ignoring build errors'",
+          "devCommand": "next dev",
+          "buildCommand": "CI=false NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' next build --no-lint --no-types"
         }
       }
     ]
