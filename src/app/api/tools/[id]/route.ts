@@ -1,31 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToolById, updateTool, deleteTool } from '@/lib/tools-service-firebase';
 import { getAuthUser } from '@/lib/auth-server';
+import { db } from '@/lib/firebase/clientApp';
+import { doc, getDoc } from 'firebase/firestore';
+
+// Define the correct type for the context parameter
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
 
 // GET /api/tools/[id]
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ): Promise<NextResponse> {
   try {
-    const id = params.id;
-    const tool = await getToolById(id);
+    const { id } = context.params;
     
-    if (!tool) {
+    if (!id) {
       return NextResponse.json(
-        { success: false, error: 'Tool not found' },
+        { error: 'Tool ID is required' },
+        { status: 400 }
+      );
+    }
+    
+    // Get the tool from Firestore
+    const toolRef = doc(db, 'tools', id);
+    const toolSnap = await getDoc(toolRef);
+    
+    if (!toolSnap.exists()) {
+      return NextResponse.json(
+        { error: 'Tool not found' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json({
-      success: true,
-      data: tool
-    });
+    const tool = {
+      id: toolSnap.id,
+      ...toolSnap.data()
+    };
+    
+    return NextResponse.json(tool);
   } catch (error) {
-    console.error('Error getting tool:', error);
+    console.error('Error fetching tool:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to get tool' },
+      { error: 'Failed to fetch tool' },
       { status: 500 }
     );
   }
