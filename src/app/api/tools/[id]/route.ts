@@ -4,20 +4,15 @@ import { getAuthUser } from '@/lib/auth-server';
 import { db } from '@/lib/firebase/clientApp';
 import { doc, getDoc } from 'firebase/firestore';
 
-// Define the correct type for the context parameter
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
+
 
 // GET /api/tools/[id]
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const { id } = context.params;
+    const id = params.id;
     
     if (!id) {
       return NextResponse.json(
