@@ -5,9 +5,13 @@
         "use": "@vercel/next",
         "config": {
           "ignoreCommand": "echo 'Ignoring build errors'",
-          "devCommand": "next dev",
-          "buildCommand": "NEXT_TYPECHECK=false CI=false next build --no-lint || exit 0"
+          "buildCommand": "next build --no-lint"
         }
       }
-    ]
+    ],
+    "env": {
+      "NEXT_TYPECHECK": "false",
+      "CI": "false",
+      "NODE_ENV": "production"
+    }
   }
