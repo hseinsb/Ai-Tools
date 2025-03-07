@@ -8,7 +8,6 @@ import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { getToolsByUserId } from '@/lib/tools-service-firebase';
 import ToolCard from '@/components/ToolCard';
-import { Tool } from '../../../types';
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -42,10 +41,10 @@ export default function ProfilePage() {
         const userTools = await getToolsByUserId(user.uid);
         console.log(`Profile page: Found ${userTools.length} tools`);
         
-        setTools(userTools as Tool[]);
+        setTools(userTools as never);
       } catch (err) {
         console.error('Error fetching user tools:', err);
-        setError('Failed to load your tools' as any);
+        setError('Failed to load your tools' as never);
       } finally {
         setIsLoading(false);
       }
@@ -167,7 +166,7 @@ export default function ProfilePage() {
                 onUpdate={() => {
                   // Refresh tools when updated
                   if (user) getToolsByUserId(user.uid).then((updatedTools) => {
-                    return setTools(updatedTools as Tool[]);
+                    return setTools(updatedTools as never);
                   });
                 }}
               />

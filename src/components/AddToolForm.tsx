@@ -4,6 +4,7 @@ import { useState, FormEvent, ChangeEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 import { createTool } from '@/lib/tools-service-firebase';
+import { Tool } from '../../types';
 
 const CATEGORIES = [
   'Audio & Music',
@@ -69,7 +70,7 @@ export default function AddToolForm() {
         userId: user.uid // Include user ID
       };
       
-      await createTool(toolData);
+      await createTool(toolData as unknown as Tool);
       
       // Reset form
       setFormData({
