@@ -116,7 +116,7 @@ export async function DELETE(
       );
     }
     
-    await deleteTool(id, user.email);
+    await deleteTool(id, user.email, user.id);
     
     return NextResponse.json({
       success: true,

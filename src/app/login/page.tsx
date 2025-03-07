@@ -48,22 +48,51 @@ export default function LoginPage() {
       setDebug('Login successful, checking user state...');
       
       // The useEffect above should handle redirection once user state changes
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
       
       // Handle Firebase auth errors specifically for invalid credentials
-      if (err.code === 'auth/invalid-credential') {
-        setError('Invalid email or password. If you are a new user, please register first.');
-      } else if (err.code === 'auth/user-not-found') {
-        setError('No account exists with this email. Please register first.');
-      } else if (err.code === 'auth/wrong-password') {
+      if (typeof err === 'object' && err !== null && 'code' in err) {
+        if (err.code === 'auth/invalid-credential') {
+          setError('Invalid email or password. If you are a new user, please register first.');
+        } else if (err.code === 'auth/user-not-found') {
+          setError('No account exists with this email. Please register first.');
+        } else if (err.code === 'auth/wrong-password') {
         setError('Incorrect password. Please try again.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many failed login attempts. Please try again later or reset your password.');
       } else {
-        setError(err.message || 'Failed to log in');
+        setError(typeof err === 'object' && err !== null && 'message' in err 
+          ? String(err.message) 
+          : 'Failed to log in');
       }
       setDebug(`Login error: ${err.code || 'unknown'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      setError('');
+      setDebug('Attempting login with email/password...');
+      
+      await login(email, password);
+      setDebug('Login successful, checking user state...');
+      
+      // The useEffect above should handle redirection once user state changes
+    } catch (err: unknown) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred');
+      setDebug(`Unexpected error: ${err}`);
     } finally {
       setIsLoading(false);
     }
@@ -242,5 +271,5 @@ export default function LoginPage() {
         )}
       </div>
     </div>
-  );
-} 
+  );  
+}

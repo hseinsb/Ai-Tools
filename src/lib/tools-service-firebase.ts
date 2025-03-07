@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, addDoc, serverTimestamp, getDocs, where, query, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, getDocs, where, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/clientApp';
 import { Tool } from '../../types';
 
@@ -167,7 +167,7 @@ export async function createTool(tool: Tool) {
 }
 
 
-export async function getAllTools() {
+export async function getAllTools(id: string) {
   const toolsRef = collection(db, 'tools');
   const querySnapshot = await getDocs(toolsRef);
   return querySnapshot.docs.map(doc => doc.data());
@@ -179,4 +179,12 @@ export async function getUserTools(userId: string) {
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => doc.data());
 }
+
+export async function getToolById(toolId: string) {
+  const toolRef = doc(db, 'tools', toolId);
+  const toolDoc = await getDoc(toolRef);
+  return toolDoc.data();
+}
+
+
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
@@ -51,18 +51,20 @@ export default function RegisterPage() {
       
       // Instead of automatic redirect, show success message and add a button
       // The user can click to go to login page
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration error:', err);
       
       // Handle Firebase auth errors
-      if (err.code === 'auth/email-already-in-use') {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'auth/email-already-in-use') {
         setError('This email is already registered. Please log in instead.');
-      } else if (err.code === 'auth/invalid-email') {
+      } else if (err && typeof err === 'object' && 'code' in err && err.code === 'auth/invalid-email') {
         setError('Please enter a valid email address.');
-      } else if (err.code === 'auth/weak-password') {
+      } else if (err && typeof err === 'object' && 'code' in err && err.code === 'auth/weak-password') {
         setError('Password is too weak. Please use a stronger password.');
       } else {
-        setError(err.message || 'Failed to register');
+        setError(typeof err === 'object' && err !== null && 'message' in err 
+          ? String(err.message) 
+          : 'Failed to register');
       }
     } finally {
       setIsLoading(false);
@@ -82,13 +84,17 @@ export default function RegisterPage() {
       setTimeout(() => {
         router.push('/profile');
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Google sign-up error:', err);
       
-      if (err.code === 'auth/popup-closed-by-user') {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'auth/popup-closed-by-user') {
         setError('Sign-up cancelled. Please try again.');
       } else {
-        setError(err.message || 'Failed to sign up with Google');
+        setError(
+          err && typeof err === 'object' && 'message' in err
+            ? String(err.message)
+            : 'Failed to sign up with Google'
+        );
       }
     } finally {
       setGoogleLoading(false);
@@ -249,8 +255,9 @@ export default function RegisterPage() {
                   );
                   
                   setSuccess(`Test account created: ${testEmail} with password: Password123! - UID: ${userCred.user.uid}`);
-                } catch (err: any) {
-                  setError(`Test registration error: ${err.code} - ${err.message}`);
+                } catch (err: unknown) {
+                  const error = err as { code?: string; message?: string };
+                  setError(`Test registration error: ${error.code || 'unknown'} - ${error.message || 'Unknown error'}`);
                 } finally {
                   setIsLoading(false);
                 }
