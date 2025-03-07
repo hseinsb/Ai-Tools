@@ -1,26 +1,108 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Reset styles */
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-white;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .form-control {
+    @apply mb-4;
+  }
+  
+  .form-label {
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
+  }
+  
+  .form-input,
+  .form-select,
+  .form-textarea {
+    @apply w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 dark:focus:ring-blue-400/50 dark:focus:border-blue-400;
+  }
+  
+  .form-textarea {
+    @apply min-h-[100px] resize-y;
+  }
+  
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none h-10 py-2 px-4 text-sm;
+  }
+  
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700;
+  }
+  
+  .spinner {
+    @apply h-5 w-5 border-2 border-t-transparent rounded-full animate-spin;
+    border-top-color: transparent;
+    border-left-color: currentColor;
+    border-right-color: currentColor;
+    border-bottom-color: currentColor;
+  }
+  
+  .card {
+    @apply rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition-all hover:shadow-md;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(249, 250, 251, 1));
+  }
+  
+  /* Add a dark mode gradient for the cards */
+  .dark .card {
+    background: linear-gradient(to bottom, rgba(31, 41, 55, 1), rgba(17, 24, 39, 1));
+    border-color: rgba(55, 65, 81, 0.5);
+  }
+  
+  /* Tool card specific styling */
+  .tool-card {
+    @apply card overflow-hidden;
+    position: relative;
+  }
+  
+  .tool-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to top, 
+      rgba(0, 0, 0, 0.1) 0%, 
+      rgba(0, 0, 0, 0) 100%
+    );
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .tool-card:hover::after {
+    opacity: 1;
+  }
 }
+
+@layer utilities {
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+} 
