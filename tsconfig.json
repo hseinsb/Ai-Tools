@@ -28,6 +28,7 @@
     "node_modules",
     "src/app/api/tools/[id]/route.ts",
     "src/app/tool/[id]/page.tsx",
-    "src/app/edit/[id]/page.tsx"
+    "src/app/edit/[id]/page.tsx",
+    "src/app/tool/[id]/ToolPageClient.tsx"
   ]
 }
