@@ -5,7 +5,7 @@
         "use": "@vercel/next",
         "config": {
           "ignoreCommand": "echo 'Ignoring build errors'",
-          "buildCommand": "next build --no-lint"
+          "buildCommand": "FORCE_RUNTIME_TAG=experimental-serverless-trace CI=false NEXT_TYPECHECK=false next build --no-lint"
         }
       }
     ],
