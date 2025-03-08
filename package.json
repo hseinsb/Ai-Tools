@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "NEXT_TYPECHECK=false CI=false next build --no-lint || exit 0",
+    "build": "node scripts/clean-build.js",
     "dev": "next dev",
     "start": "next start",
     "lint": "next lint"
