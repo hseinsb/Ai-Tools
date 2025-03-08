@@ -1,10 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { collection, addDoc, serverTimestamp, getDocs, where, query, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/clientApp';
-import { Tool } from '../../types';
 
 // Utility function to parse CSV content
-function parseCSV(csvText: string) {
+function parseCSV(csvText) {
   const lines = csvText.split(/\r?\n/).filter(line => line.trim());
   if (lines.length === 0) return [];
 
@@ -16,9 +15,8 @@ function parseCSV(csvText: string) {
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
-
     const values = line.split(',').map(v => v.trim());
-    const record: Record<string, string> = {};
+    const record = {};
 
     for (let j = 0; j < headers.length && j < values.length; j++) {
       record[headers[j]] = values[j];
@@ -30,12 +28,12 @@ function parseCSV(csvText: string) {
   return results;
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request) {
   try {
     // Extract form data from the request
     const formData = await request.formData();
-    const file = formData.get('file') as File;
-    const userId = formData.get('userId') as string;
+    const file = formData.get('file');
+    const userId = formData.get('userId');
 
     console.log(`Import request received - userId: ${userId}, file: ${file ? 'yes' : 'no'}`);
 
@@ -56,7 +54,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'No valid tools found in CSV' }, { status: 400 });
     }
 
-    const importedIds: string[] = [];
+    const importedIds = [];
 
     // Import each tool into Firestore
     for (const toolData of parsedTools) {
@@ -93,7 +91,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get('userId');
@@ -110,13 +108,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function getToolsByUserId(userId: string) {
+export async function getToolsByUserId(userId) {
   try {
     const toolsRef = collection(db, 'tools');
     const q = query(toolsRef, where('userId', '==', userId));
     const querySnapshot = await getDocs(q);
     
-    const tools: unknown[] = [];
+    const tools = [];
     querySnapshot.forEach((doc) => {
       tools.push({
         id: doc.id,
@@ -131,11 +129,10 @@ export async function getToolsByUserId(userId: string) {
   }
 }
 
-export async function deleteTool(toolId: string, userId: string, userToolId: string) {
+export async function deleteTool(toolId, userId, userToolId) {
   if (!userId) {
     throw new Error('User ID is required to delete a tool');
   }
-  
   if (!userToolId) {
     throw new Error('UserTool ID is required to delete a tool');
   }
@@ -155,35 +152,125 @@ export async function deleteTool(toolId: string, userId: string, userToolId: str
   }
 }
 
-export async function updateTool(toolId: string, userId: string) {
+export async function updateTool(toolId, userId) {
   if (!userId) {
     throw new Error('User ID is required to update a tool');
   }
 }
 
-export async function createTool(tool: Tool) {
+export async function createTool(tool) {
   const docRef = await addDoc(collection(db, 'tools'), tool);
   return docRef.id;
 }
 
-
+// Get all tools
 export async function getAllTools() {
-  const toolsRef = collection(db, 'tools');
-  const querySnapshot = await getDocs(toolsRef);
-  return querySnapshot.docs.map(doc => doc.data());
+  try {
+    const toolsCollection = collection(db, 'tools');
+    const toolsSnapshot = await getDocs(toolsCollection);
+    return toolsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching tools:', error);
+    return [];
+  }
 }
 
-export async function getUserTools(userId: string) {
+export async function getUserTools(userId) {
   const toolsRef = collection(db, 'tools');
   const q = query(toolsRef, where('userId', '==', userId));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => doc.data());
 }
 
-export async function getToolById(toolId: string) {
-  const toolRef = doc(db, 'tools', toolId);
-  const toolDoc = await getDoc(toolRef);
-  return toolDoc.data();
+// Get tool by ID
+export async function getToolById(id) {
+  try {
+    const toolRef = doc(db, 'tools', id);
+    const toolSnap = await getDoc(toolRef);
+    
+    if (!toolSnap.exists()) {
+      return null;
+    }
+    
+    return {
+      id: toolSnap.id,
+      ...toolSnap.data()
+    };
+  } catch (error) {
+    console.error('Error fetching tool by ID:', error);
+    return null;
+  }
+}
+
+// Get featured tools
+export async function getFeaturedTools(count = 6) {
+  try {
+    const toolsCollection = collection(db, 'tools');
+    const q = query(
+      toolsCollection,
+      where('favorite', '==', true),
+      limit(count)
+    );
+    
+    const featuredSnapshot = await getDocs(q);
+    return featuredSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching featured tools:', error);
+    return [];
+  }
+}
+
+// Get tools by category
+export async function getToolsByCategory(category) {
+  try {
+    const toolsCollection = collection(db, 'tools');
+    const q = query(
+      toolsCollection,
+      where('category', '==', category)
+    );
+    
+    const categorySnapshot = await getDocs(q);
+    return categorySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching tools by category:', error);
+    return [];
+  }
+}
+
+// Search tools
+export async function searchTools(searchTerm) {
+  try {
+    const toolsCollection = collection(db, 'tools');
+    const toolsSnapshot = await getDocs(toolsCollection);
+    const tools = toolsSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    // Client-side search because Firestore doesn't support full-text search natively
+    return tools.filter(tool => {
+      const name = tool.name?.toLowerCase() || '';
+      const description = tool.description?.toLowerCase() || '';
+      const tags = tool.tags?.toLowerCase() || '';
+      const term = searchTerm.toLowerCase();
+      
+      return name.includes(term) || 
+             description.includes(term) || 
+             tags.includes(term);
+    });
+  } catch (error) {
+    console.error('Error searching tools:', error);
+    return [];
+  }
 }
 
 

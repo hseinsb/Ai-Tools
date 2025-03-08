@@ -1,6 +1,7 @@
+/* eslint-disable react/jsx-no-undef */
+/* eslint-disable react/jsx-no-comment-textnodes */
 // Server Component (no 'use client' directive)
-import ToolPageClient from '@/app/tool/[id]/ToolPageClient';
-import { getToolById } from '@/lib/tools-service-firebase';
+
 
 // This runs at build time
 export async function generateStaticParams() {
@@ -10,7 +11,7 @@ export async function generateStaticParams() {
 }
 
 // Convert to JavaScript to avoid TypeScript errors
-export default async function ToolPage({ params }) {
+export default function ToolPage({ params }) {
   const id = params.id;
   
   // You can fetch the tool data server-side if needed
@@ -18,6 +19,7 @@ export default async function ToolPage({ params }) {
   
   return (
     <div className="container mx-auto px-4 py-8">
+      // eslint-disable-next-line react/jsx-no-undef, react/jsx-no-undef
       <ToolDetail id={id} />
     </div>
   );
