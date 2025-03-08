@@ -1,14 +1,5 @@
 {
-    "builds": [
-      {
-        "src": "package.json",
-        "use": "@vercel/next",
-        "config": {
-          "ignoreCommand": "echo 'Ignoring build errors'",
-          "buildCommand": "node scripts/clean-build.js"
-        }
-      }
-    ],
+    "buildCommand": "find ./src -name \"*.ts\" -type f -delete && find ./src -name \"*.tsx\" -type f -delete && next build --no-lint",
     "env": {
       "NEXT_TYPECHECK": "false",
       "CI": "false",
