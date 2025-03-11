@@ -13,6 +13,7 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
   const [importError, setImportError] = useState<string>("");
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [showHelpModal, setShowHelpModal] = useState<boolean>(false);
+  const [importFormat, setImportFormat] = useState<string>("csv"); // Default to CSV
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +31,13 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
       return;
     }
 
-    // Check file type - only accept CSV
-    if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
-      setImportError("Please upload a CSV file");
+    // Check file type - accept both CSV and JSON
+    const isCSV = file.type === "text/csv" || file.name.endsWith(".csv");
+    const isJSON =
+      file.type === "application/json" || file.name.endsWith(".json");
+
+    if (!isCSV && !isJSON) {
+      setImportError("Please upload a CSV or JSON file");
       return;
     }
 
@@ -44,6 +49,7 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
       formData.append("file", file);
 
       console.log("Sending import with userId:", user.uid);
+      console.log("File type:", file.type, "File name:", file.name);
 
       const res = await fetch("/api/tools/import", {
         method: "POST",
@@ -52,8 +58,8 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
       });
 
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Import failed: ${errorText}`);
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Import failed");
       }
 
       const data = await res.json();
@@ -71,27 +77,8 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
           }\n\nThe page will now reload to show your imported tools.`
         );
 
-        // Force a hard reload - THREE different approaches to ensure it works
-        console.log("Forcing reload to show imported tools");
-
-        // 1. Clear any cache
-        if ("caches" in window) {
-          try {
-            caches.keys().then((names) => {
-              names.forEach((name) => {
-                caches.delete(name);
-              });
-            });
-          } catch (e) {
-            console.error("Cache clear error:", e);
-          }
-        }
-
-        // 2. Use location.reload() with forceGet parameter
-        setTimeout(() => {
-          window.location.href = "/?reload=" + Date.now();
-          setTimeout(() => window.location.reload(), 100);
-        }, 500);
+        // Force a hard reload
+        window.location.href = "/?reload=" + Date.now();
       } else {
         setImportError(data.error || "Import failed");
       }
@@ -155,9 +142,9 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <h3 className="text-md font-medium mb-2">Import from CSV</h3>
+          <h3 className="text-md font-medium mb-2">Import Tools</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-            Upload a CSV file to bulk import AI tools.
+            Upload a CSV or JSON file to bulk import AI tools.
             <button
               onClick={() => setShowHelpModal(true)}
               className="text-blue-600 dark:text-blue-400 hover:underline ml-1"
@@ -166,17 +153,44 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
             </button>
           </p>
 
+          <div className="flex items-center mb-3">
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="importFormat"
+                  value="csv"
+                  checked={importFormat === "csv"}
+                  onChange={() => setImportFormat("csv")}
+                  className="mr-1"
+                />
+                <span className="text-sm">CSV</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="importFormat"
+                  value="json"
+                  checked={importFormat === "json"}
+                  onChange={() => setImportFormat("json")}
+                  className="mr-1"
+                />
+                <span className="text-sm">JSON</span>
+              </label>
+            </div>
+          </div>
+
           <div className="flex items-center">
             <input
               type="file"
               ref={fileInputRef}
-              accept=".csv"
+              accept={importFormat === "csv" ? ".csv" : ".json"}
               onChange={handleFileChange}
               className="hidden"
-              id="csv-file-input"
+              id="import-file-input"
             />
             <label
-              htmlFor="csv-file-input"
+              htmlFor="import-file-input"
               className="btn btn-outline cursor-pointer"
             >
               {isImporting ? (
@@ -219,7 +233,7 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
                       d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"
                     />
                   </svg>
-                  Select CSV file
+                  Select {importFormat.toUpperCase()} file
                 </>
               )}
             </label>
