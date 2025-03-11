@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "./AuthProvider";
 import { deleteTool } from "@/lib/tools-service-firebase";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 interface Tool {
   id: string;
@@ -87,7 +88,13 @@ export default function ToolCard({
     e.stopPropagation();
 
     if (user) {
-      // User is authenticated, navigate to edit page
+      // User is authenticated, set cookie and navigate to edit page
+      console.log("Edit button clicked, setting user credential cookie");
+      Cookies.set(
+        "firebase-user-credentials",
+        JSON.stringify({ uid: user.uid }),
+        { expires: 7 }
+      );
       router.push(`/edit/${tool.id}`);
     } else {
       // User is not authenticated, show login prompt and redirect to login page

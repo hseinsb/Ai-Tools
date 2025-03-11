@@ -10,43 +10,99 @@ import {
 import { db } from "@/lib/firebase/clientApp";
 import { getAuthUser } from "@/lib/auth-server";
 
-// Simple CSV parser function to replace csv-parse
-function parseCSV(csvText: string) {
-  const lines = csvText.split("\n").filter((line) => line.trim() !== "");
-  if (lines.length < 2) return [];
+// Define a type for imported records
+interface ImportedRecord {
+  name?: string;
+  Name?: string;
+  category?: string;
+  Category?: string;
+  description?: string;
+  Description?: string;
+  link?: string;
+  Link?: string;
+  [key: string]: string | undefined; // Allow other string properties
+}
 
+// Improved CSV parser with better handling of quoted fields and commas
+function parseCSV(csvText: string): ImportedRecord[] {
+  console.log("CSV parsing input:", csvText.substring(0, 100) + "...");
+
+  // Split by lines and filter empty lines
+  const lines = csvText.split("\n").filter((line) => line.trim() !== "");
+
+  if (lines.length < 2) {
+    console.log("CSV has less than 2 lines, can't parse");
+    return [];
+  }
+
+  // Parse the headers - trim and normalize
   const headers = lines[0]
     .split(",")
-    .map((h) => h.trim().toLowerCase().replace(/"/g, ""));
+    .map((h) => h.trim().replace(/^"|"$/g, "").toLowerCase());
 
-  return lines.slice(1).map((line) => {
-    const values = line
-      .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
-      .map((v) => v.trim().replace(/^"|"$/g, ""));
+  console.log("CSV headers:", headers);
 
-    return headers.reduce((obj: Record<string, string>, header, index) => {
-      obj[header] = values[index] || "";
-      return obj;
-    }, {});
-  });
+  const records: ImportedRecord[] = [];
+
+  // Process each line (starting from line 1, after headers)
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+
+    // Split values while respecting quoted fields with commas
+    const regex = /(?:^|,)(?:"([^"]*)"|([^,]*))/g;
+    const values: string[] = [];
+    let match;
+
+    while ((match = regex.exec(line + ","))) {
+      values.push((match[1] || match[2] || "").trim());
+    }
+
+    // Create object from headers and values
+    if (values.length > 0) {
+      const record: ImportedRecord = {};
+
+      headers.forEach((header, index) => {
+        if (index < values.length) {
+          record[header] = values[index];
+        }
+      });
+
+      // Only add if record has at least a name
+      if (record.name || record.Name) {
+        records.push(record);
+      }
+    }
+  }
+
+  console.log(`Parsed ${records.length} records from CSV`);
+  return records;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    // Add debug log
     console.log("--- STARTING IMPORT PROCESS ---");
 
     // Get the authenticated user first
     const user = await getAuthUser();
     if (!user) {
+      console.log("Authentication required - no user found");
       return NextResponse.json(
         { success: false, error: "Authentication required" },
         { status: 401 }
       );
     }
 
+    // Print user details for debugging
+    console.log("User from auth:", {
+      id: user.id,
+      uid: user.uid,
+      email: user.email,
+    });
+
     // Verify user ID exists
     if (!user.id && !user.uid) {
+      console.log("Invalid user credentials - no id or uid");
       return NextResponse.json(
         { success: false, error: "Invalid user credentials" },
         { status: 403 }
@@ -61,6 +117,7 @@ export async function POST(request: NextRequest) {
     const file = formData.get("file") as File;
 
     if (!file) {
+      console.log("No file provided in request");
       return NextResponse.json(
         { success: false, error: "No file provided" },
         { status: 400 }
@@ -69,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     console.log("Received file:", file.name, file.size, file.type);
 
-    // First, get all existing tools to avoid duplicates
+    // Get existing tool names (for duplicate checking only)
     const toolsQuery = query(
       collection(db, "tools"),
       where("userId", "==", userId)
@@ -80,10 +137,12 @@ export async function POST(request: NextRequest) {
     );
     console.log(`User already has ${existingTools.length} tools`);
 
-    let records: any[] = [];
+    // Read the file content as text
+    let records: ImportedRecord[] = [];
     const fileText = await file.text();
+    console.log("File content sample:", fileText.substring(0, 100) + "...");
 
-    // Determine if it's JSON or CSV by checking file type and content
+    // Determine if it's JSON or CSV by file extension and content
     const isJson =
       file.type === "application/json" ||
       file.name.endsWith(".json") ||
@@ -93,11 +152,19 @@ export async function POST(request: NextRequest) {
     if (isJson) {
       console.log("Processing as JSON file");
       try {
-        records = JSON.parse(fileText);
-        // If it's a single object, wrap it in an array
-        if (!Array.isArray(records)) {
-          records = [records];
+        const parsedJson = JSON.parse(fileText);
+
+        // Ensure we have an array of records
+        if (Array.isArray(parsedJson)) {
+          records = parsedJson;
+        } else if (typeof parsedJson === "object") {
+          // Single object - wrap in array
+          records = [parsedJson];
+        } else {
+          throw new Error("Invalid JSON structure - expected array or object");
         }
+
+        console.log(`Parsed ${records.length} records from JSON`);
       } catch (jsonError) {
         console.error("JSON parse error:", jsonError);
         return NextResponse.json(
@@ -110,16 +177,19 @@ export async function POST(request: NextRequest) {
       records = parseCSV(fileText);
     }
 
-    console.log("Parsed records count:", records.length);
+    console.log("Records to process:", records.length);
+
+    // Show a sample of what we'll import
+    if (records.length > 0) {
+      console.log("Sample record:", JSON.stringify(records[0]));
+    }
 
     if (!records || records.length === 0) {
       return NextResponse.json(
-        { success: false, error: "No valid data found in file" },
+        { success: false, error: "No valid records found in file" },
         { status: 400 }
       );
     }
-
-    console.log(`Found ${records.length} records to import`);
 
     // Import each tool with the userId
     let successCount = 0;
@@ -127,9 +197,9 @@ export async function POST(request: NextRequest) {
     const importedIds = [];
 
     for (const originalRecord of records) {
-      console.log("Processing record:", originalRecord);
+      console.log("Processing record:", JSON.stringify(originalRecord));
 
-      // Modify the validation to be more flexible
+      // Extract fields with flexible case handling
       const processedRecord = {
         name: String(originalRecord.name || originalRecord.Name || "").trim(),
         category: String(
@@ -141,50 +211,43 @@ export async function POST(request: NextRequest) {
         link: String(originalRecord.link || originalRecord.Link || "").trim(),
       };
 
-      // More lenient validation
+      console.log("Processed record:", JSON.stringify(processedRecord));
+
+      // Skip if name is missing
       if (!processedRecord.name) {
+        console.log("Skipping record with no name");
         skippedCount++;
         continue;
       }
 
-      // Skip duplicates
-      if (existingTools.includes(processedRecord.name.trim().toLowerCase())) {
+      // Skip duplicates by name
+      if (existingTools.includes(processedRecord.name.toLowerCase())) {
         console.log(`Skipping duplicate tool: ${processedRecord.name}`);
         skippedCount++;
         continue;
       }
 
       try {
-        // THIS IS CRITICAL: Match EXACT field names from the regular tool creation
+        // Create the tool with correct fields
         const toolData = {
           name: processedRecord.name,
           description: processedRecord.description,
-          category: processedRecord.category,
-          link: processedRecord.link,
+          category: processedRecord.category || "Other",
+          link: processedRecord.link || "",
           userId: userId,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
 
-        console.log(
-          `Creating imported tool:`,
-          JSON.stringify({
-            ...toolData,
-            createdAt: "SERVER_TIMESTAMP",
-          })
-        );
+        console.log("Creating tool:", JSON.stringify(toolData));
 
         // Add to Firestore
         const docRef = await addDoc(collection(db, "tools"), toolData);
-        console.log(`Created imported tool with ID: ${docRef.id}`);
+        console.log(`Created tool with ID: ${docRef.id}`);
         importedIds.push(docRef.id);
-
-        console.log("Importing for user:", userId);
-        console.log("Created document:", docRef.id);
-
         successCount++;
       } catch (error) {
-        console.error("Firestore write error:", error);
+        console.error("Error creating tool:", error);
         skippedCount++;
       }
     }

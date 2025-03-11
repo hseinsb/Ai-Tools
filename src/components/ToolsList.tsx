@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase/clientApp";
 import { useAuth } from "./AuthProvider";
@@ -220,14 +220,17 @@ export default function ToolsList({
   };
 
   // Group tools by category for the byCategory view
-  const toolsByCategory = tools.reduce((acc, tool) => {
-    const category = tool.category || "Uncategorized";
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(tool);
-    return acc;
-  }, {} as Record<string, typeof tools>);
+  const toolsByCategory = tools.reduce(
+    (acc, tool) => {
+      const category = tool.category || "Uncategorized";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(tool);
+      return acc;
+    },
+    {} as Record<string, typeof tools>
+  );
 
   // Filter tools based on selected category
   const displayTools =
@@ -353,7 +356,7 @@ export default function ToolsList({
         )}
 
         {/* Selection mode controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-3">
           <button
             onClick={toggleSelectMode}
             className={`px-3 py-1 rounded text-sm flex items-center ${
@@ -420,7 +423,7 @@ export default function ToolsList({
                   </button>
 
                   <button
-                    className="px-3 py-1 rounded text-sm bg-red-600 text-black font-medium hover:bg-red-700 shadow-sm"
+                    className="px-3 py-1 rounded text-sm bg-red-600 text-white font-medium hover:bg-red-700 shadow-sm"
                     onClick={handleBulkDelete}
                   >
                     <span className="flex items-center">

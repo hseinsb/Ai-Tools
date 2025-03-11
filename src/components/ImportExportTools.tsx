@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import Cookies from "js-cookie";
 
 interface ImportExportToolsProps {
   onImportSuccess?: () => void;
 }
 
-export default function ImportExportTools({}: ImportExportToolsProps) {
+export default function ImportExportTools({
+  onImportSuccess,
+}: ImportExportToolsProps) {
   const { user } = useAuth();
   const [isImporting, setIsImporting] = useState<boolean>(false);
   const [importError, setImportError] = useState<string>("");
@@ -16,14 +19,59 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
   const [importFormat, setImportFormat] = useState<string>("csv"); // Default to CSV
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Ensure authentication cookie is set whenever user changes
+  useEffect(() => {
+    if (user) {
+      console.log("Setting auth cookie in ImportExportTools");
+      Cookies.set(
+        "firebase-user-credentials",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email || `${user.uid}@example.com`,
+        }),
+        { expires: 7, path: "/" }
+      );
+    }
+  }, [user]);
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      handleImport(e.target.files[0]);
+      const file = e.target.files[0];
+      console.log("Selected file:", file.name, file.type, file.size);
+
+      // Clear previous errors
+      setImportError("");
+
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        setImportError("File size exceeds 5MB limit");
+        return;
+      }
+
+      // Check file type based on extension
+      const isCSV = file.name.toLowerCase().endsWith(".csv");
+      const isJSON = file.name.toLowerCase().endsWith(".json");
+
+      if (!isCSV && !isJSON) {
+        setImportError(
+          "Please upload a CSV or JSON file (must have .csv or .json extension)"
+        );
+        return;
+      }
+
+      // Set format based on file extension
+      setImportFormat(isCSV ? "csv" : "json");
+
+      // Proceed with import
+      handleImport(file);
     }
   };
 
   const handleImport = async (file: File) => {
-    if (!file) return;
+    if (!file) {
+      setImportError("No file selected");
+      return;
+    }
 
     // User must be logged in to import
     if (!user) {
@@ -31,10 +79,25 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
       return;
     }
 
-    // Check file type - accept both CSV and JSON
-    const isCSV = file.type === "text/csv" || file.name.endsWith(".csv");
-    const isJSON =
-      file.type === "application/json" || file.name.endsWith(".json");
+    console.log(
+      `Starting import process with file: ${file.name} (${file.size} bytes)`
+    );
+
+    // Ensure auth cookie is set right before import with complete user info
+    if (user) {
+      Cookies.set(
+        "firebase-user-credentials",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email || `${user.uid}@example.com`,
+        }),
+        { expires: 7, path: "/" }
+      );
+    }
+
+    // Double-check file extension
+    const isCSV = file.name.toLowerCase().endsWith(".csv");
+    const isJSON = file.name.toLowerCase().endsWith(".json");
 
     if (!isCSV && !isJSON) {
       setImportError("Please upload a CSV or JSON file");
@@ -48,8 +111,9 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
       const formData = new FormData();
       formData.append("file", file);
 
-      console.log("Sending import with userId:", user.uid);
-      console.log("File type:", file.type, "File name:", file.name);
+      console.log(
+        `Sending ${isCSV ? "CSV" : "JSON"} import with user ID: ${user.uid}`
+      );
 
       const res = await fetch("/api/tools/import", {
         method: "POST",
@@ -57,12 +121,14 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
         credentials: "include",
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Import failed");
-      }
+      console.log("Server response status:", res.status);
 
       const data = await res.json();
+      console.log("Server response data:", data);
+
+      if (!res.ok) {
+        throw new Error(data.error || "Import failed");
+      }
 
       if (data.success) {
         // Reset file input
@@ -70,14 +136,20 @@ export default function ImportExportTools({}: ImportExportToolsProps) {
           fileInputRef.current.value = "";
         }
 
-        // Alert success and prepare for reload
+        // Call success callback if provided
+        if (onImportSuccess) {
+          onImportSuccess();
+        }
+
+        // Alert success
         alert(
           `${
-            data.message || `Successfully imported ${data.count} tools.`
+            data.message ||
+            `Successfully imported ${data.count} tools${data.skipped > 0 ? ` (${data.skipped} skipped)` : ""}.`
           }\n\nThe page will now reload to show your imported tools.`
         );
 
-        // Force a hard reload
+        // Force a reload with cache busting
         window.location.href = "/?reload=" + Date.now();
       } else {
         setImportError(data.error || "Import failed");

@@ -1,20 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  serverTimestamp,
-} from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase/clientApp";
 import { useAuth } from "@/components/AuthProvider";
-import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function ToolsToolbar() {
   const { user } = useAuth();
-  const router = useRouter();
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = async () => {
     try {
@@ -51,54 +46,97 @@ export default function ToolsToolbar() {
   };
 
   const handleImport = () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json";
+    // Create file input
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-    input.onchange = async (e) => {
+  const handleFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // User must be logged in to import
+    if (!user) {
+      alert("You must be logged in to import tools");
+      return;
+    }
+
+    // Set auth cookie to ensure the server recognizes the user
+    // Include both UID and email for better authentication
+    if (user) {
+      console.log("Setting auth cookie for import with user:", user.uid);
+      Cookies.set(
+        "firebase-user-credentials",
+        JSON.stringify({
+          uid: user.uid,
+          email: user.email || `${user.uid}@example.com`,
+        }),
+        { expires: 7, path: "/" }
+      );
+    }
+
+    console.log(`Selected file: ${file.name} (${file.size} bytes)`);
+
+    // Check file extension
+    const isCSV = file.name.toLowerCase().endsWith(".csv");
+    const isJSON = file.name.toLowerCase().endsWith(".json");
+
+    if (!isCSV && !isJSON) {
+      alert(
+        "Please select a CSV or JSON file (must have .csv or .json extension)"
+      );
+      return;
+    }
+
+    try {
       setIsImporting(true);
-      try {
-        const target = e.target as HTMLInputElement;
-        const file = target.files?.[0];
-        if (!file) return;
 
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          try {
-            if (!event.target) {
-              throw new Error("Failed to read file: event target is null");
-            }
+      // Create form data for the file upload
+      const formData = new FormData();
+      formData.append("file", file);
 
-            const importedTools = JSON.parse(event.target.result as string);
+      console.log(
+        `Sending ${isCSV ? "CSV" : "JSON"} import with user ID: ${user.uid}`
+      );
 
-            for (const tool of importedTools) {
-              await addDoc(collection(db, "tools"), {
-                ...tool,
-                userId: user?.uid ?? "",
-                createdAt: serverTimestamp(),
-              });
-            }
+      // Make the API request with credentials included
+      const response = await fetch("/api/tools/import", {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+      });
 
-            alert("Import successful!");
+      console.log("Response status:", response.status);
 
-            router.refresh();
-          } catch (error) {
-            console.error("Import failed:", error);
-            alert("Failed to import tools.");
-          } finally {
-            setIsImporting(false);
-          }
-        };
+      const result = await response.json();
+      console.log("Import response:", result);
 
-        reader.readAsText(file);
-      } catch (error) {
-        console.error("Import failed:", error);
-        alert("Failed to import tools.");
-        setIsImporting(false);
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to import tools");
       }
-    };
 
-    input.click();
+      // Display success message
+      alert(
+        `${
+          result.message ||
+          `Successfully imported ${result.count} tools${result.skipped > 0 ? ` (${result.skipped} skipped)` : ""}.`
+        }\n\nThe page will now reload to show your imported tools.`
+      );
+
+      // Clear input and refresh page
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      // Force a reload with cache busting
+      window.location.href = "/?reload=" + Date.now();
+    } catch (error) {
+      console.error("Import failed:", error);
+      alert(error instanceof Error ? error.message : "Failed to import tools.");
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
@@ -120,6 +158,15 @@ export default function ToolsToolbar() {
         </svg>
         Add New Tool
       </Link>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        accept=".json,.csv"
+        onChange={handleFileSelected}
+      />
 
       <button
         onClick={handleImport}

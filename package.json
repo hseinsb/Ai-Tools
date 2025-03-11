@@ -10,10 +10,12 @@
     "refresh": "next dev"
   },
   "dependencies": {
+    "@types/js-cookie": "^3.0.6",
     "autoprefixer": "^10.4.20",
     "csv-parse": "^5.6.0",
     "csv-stringify": "^6.5.2",
     "firebase": "^11.4.0",
+    "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.1",
     "next": "15.2.1",

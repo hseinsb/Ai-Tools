@@ -20,8 +20,11 @@ export function middleware(request: NextRequest) {
   const userCredentials = request.cookies.get("firebase-user-credentials");
   const isAuthenticated = !!authCookie?.value || !!userCredentials?.value;
 
+  // Check for force parameter to allow viewing auth pages while logged in
+  const forceView = request.nextUrl.searchParams.get("force") === "true";
+
   console.log(
-    `Middleware: Path=${path}, Protected=${isProtectedPath}, AuthPath=${isAuthPath}, Authenticated=${isAuthenticated}`
+    `Middleware: Path=${path}, Protected=${isProtectedPath}, AuthPath=${isAuthPath}, Authenticated=${isAuthenticated}, ForceView=${forceView}`
   );
 
   // Redirect unauthenticated users to login page if they're accessing a protected route
@@ -32,8 +35,8 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users from login/register to homepage
-  if (isAuthPath && isAuthenticated) {
+  // Redirect authenticated users from login/register to homepage UNLESS force parameter is set
+  if (isAuthPath && isAuthenticated && !forceView) {
     console.log("Redirecting authenticated user to home page");
     return NextResponse.redirect(new URL("/", request.url));
   }
