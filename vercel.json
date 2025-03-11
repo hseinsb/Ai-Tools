@@ -1,0 +1,21 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "outputDirectory": ".next",
+  "git": {
+    "deploymentEnabled": {
+      "main": true
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_FIREBASE_API_KEY": "AIzaSyDwG6cZtYeP58MZi0uHLwDwQIugdqnKf8s",
+    "NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN": "personal-ai-tools-a6e45.firebaseapp.com",
+    "NEXT_PUBLIC_FIREBASE_PROJECT_ID": "personal-ai-tools-a6e45",
+    "NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET": "personal-ai-tools-a6e45.firebasestorage.app",
+    "NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "465156815386",
+    "NEXT_PUBLIC_FIREBASE_APP_ID": "1:465156815386:web:004b271f819126bf90efa3",
+    "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-F8MD11B18F"
+  }
+}

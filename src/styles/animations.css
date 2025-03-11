@@ -1,0 +1,699 @@
+/* Fade In animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  /* Slide up animation */
+  @keyframes slideIn {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-in-out;
+  }
+  
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Staggered animations */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  
+  /* Add these animations to your existing animations.css file */
+  
+  .fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes slideInBottom {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .slide-in-bottom {
+    animation: slideInBottom 0.5s ease-out forwards;
+  }
+  
+  .delay-100 {
+    animation-delay: 0.1s;
+  }
+  
+  .delay-200 {
+    animation-delay: 0.2s;
+  }
+  
+  .delay-300 {
+    animation-delay: 0.3s;
+  }
+  
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+  }
+  
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+  
+  /* Hover lift animation */
+  .hover-lift {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* Spinner animation */
+  .spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Add these hover effects and animations to your animations.css file */
+  
+  /* Button hover effects */
+  .btn-primary {
+    @apply bg-blue-600 text-white px-4 py-2 rounded font-medium;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-secondary {
+    @apply bg-gray-600 text-white px-4 py-2 rounded font-medium;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-hover-effect {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+  }
+  
+  .btn-hover-effect:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.3s ease-out;
+    z-index: -1;
+  }
+  
+  .btn-hover-effect:hover:after {
+    transform: scaleY(1);
+  }
+  
+  .btn-hover-effect:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Submit button with gradient and hover effect */
+  .submit-button {
+    @apply py-3 px-6 rounded-md font-medium text-white flex items-center disabled:opacity-50;
+    background: linear-gradient(to right, #2563eb, #1d4ed8);
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+  }
+  
+  .submit-button:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, #1e40af, #1e3a8a);
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+  }
+  
+  .submit-button:hover:before {
+    opacity: 1;
+  }
+  
+  .submit-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(37, 99, 235, 0.2), 0 3px 6px rgba(37, 99, 235, 0.1);
+  }
+  
+  .submit-button:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  
+  /* Button icon with animation */
+  .button-icon {
+    transition: transform 0.3s ease;
+  }
+  
+  .submit-button:hover .button-icon {
+    transform: rotate(90deg);
+  }
+  
+  /* Input hover effects */
+  .input-hover-effect {
+    transition: all 0.3s ease;
+    border-color: #e5e7eb;
+  }
+  
+  .input-hover-effect:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .input-hover-effect:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  }
+  
+  /* Label hover animation */
+  .label-hover {
+    transition: color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+  }
+  
+  .label-hover:hover {
+    color: #2563eb;
+    transform: translateX(3px);
+  }
+  
+  /* Category cards with hover effects */
+  .category-card {
+    @apply flex flex-col items-center justify-center p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .category-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .category-card:hover .category-icon {
+    transform: scale(1.2);
+  }
+  
+  .category-hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    border-color: #93c5fd;
+    transform: translateY(-2px);
+  }
+  
+  .category-selected {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .category-selected .category-icon {
+    transform: scale(1.1);
+  }
+  
+  /* Shadow hover effect */
+  .shadow-hover {
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  
+  .shadow-hover:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transform: translateY(-2px);
+  }
+  
+  /* Text gradient effect */
+  .text-gradient {
+    background: linear-gradient(to right, #2563eb, #3b82f6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  
+  /* Character count bar animation */
+  .character-count-bar {
+    transition: width 0.5s ease;
+  }
+  
+  /* Gentle pulse animation */
+  @keyframes gentlePulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+  }
+  
+  .pulse-gentle {
+    animation: gentlePulse 2s infinite;
+  }
+  
+  /* Hover slide animation */
+  .hover-slide {
+    transition: transform 0.3s ease;
+  }
+  
+  .hover-slide:hover {
+    transform: translateX(5px);
+  }
+  
+  /* Add a larger spinner for loading states */
+  .spinner-large {
+    display: inline-block;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 3px solid rgba(59, 130, 246, 0.3);
+    border-top-color: #3b82f6;
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Add this to your existing animations.css */
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  /* Black card styling with blue accent hover */
+  .tool-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1;
+  }
+  
+  /* Blue gradient on hover */
+  .tool-card-hovered {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    color: white;
+  }
+  
+  /* Alternate white to blue gradient option */
+  .tool-card-hovered-alt {
+    background: linear-gradient(135deg, #ffffff 0%, #dbeafe 50%, #93c5fd 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    color: #1e3a8a;
+  }
+  
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+  
+  .tool-card:hover::after {
+    height: 100%;
+  }
+  
+  /* Creative Card Design */
+  .creative-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    height: 100%;
+    perspective: 1000px;
+  }
+  
+  .card-content {
+    position: relative;
+    background: #1a1a2e;
+    background-image: 
+      radial-gradient(at 10% 10%, rgba(29, 78, 216, 0.15) 0px, transparent 50%),
+      radial-gradient(at 90% 90%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+    color: #e6e6e6;
+    padding: 1.75rem;
+    height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    border-left: 3px solid transparent;
+    transition: all 0.4s ease;
+    transform-style: preserve-3d;
+    z-index: 1;
+  }
+  
+  .card-content.hovered {
+    border-left-color: #3b82f6;
+    background: #16213e;
+    background-image: 
+      radial-gradient(at 30% 20%, rgba(59, 130, 246, 0.2) 0px, transparent 50%),
+      radial-gradient(at 80% 70%, rgba(29, 78, 216, 0.2) 0px, transparent 50%);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Decorative elements */
+  .card-decoration-top {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(225deg, #3b82f6 0%, transparent 80%);
+    opacity: 0.1;
+    border-radius: 0 12px 0 80px;
+    transition: all 0.3s ease;
+  }
+  
+  .card-decoration-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(45deg, #2563eb 0%, transparent 70%);
+    opacity: 0.1;
+    border-radius: 0 60px 0 12px;
+    transition: all 0.3s ease;
+  }
+  
+  .hovered .card-decoration-top {
+    opacity: 0.2;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .hovered .card-decoration-bottom {
+    opacity: 0.2;
+    width: 80px;
+    height: 80px;
+  }
+  
+  /* Category badge */
+  .category-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(15, 23, 42, 0.8);
+    color: #94a3b8;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 2rem;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    transition: all 0.3s ease;
+    z-index: 10;
+  }
+  
+  .hovered .category-badge {
+    background: rgba(59, 130, 246, 0.9);
+    color: white;
+    backdrop-filter: blur(8px);
+    border-color: rgba(96, 165, 250, 0.5);
+  }
+  
+  /* Card content styling */
+  .card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    padding-right: 4rem;
+    letter-spacing: -0.01em;
+    color: white;
+    transition: all 0.3s ease;
+  }
+  
+  .hovered .card-title {
+    transform: translateY(-2px);
+    color: #60a5fa;
+  }
+  
+  .card-description {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+    transition: color 0.3s ease;
+  }
+  
+  .hovered .card-description {
+    color: #cbd5e1;
+  }
+  
+  /* Card footer */
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .visit-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #3b82f6;
+    transition: all 0.3s ease;
+  }
+  
+  .visit-arrow {
+    width: 16px;
+    height: 16px;
+    margin-left: 0.25rem;
+    transition: transform 0.3s ease;
+  }
+  
+  .hovered .visit-link {
+    color: #60a5fa;
+  }
+  
+  .hovered .visit-arrow {
+    transform: translateX(3px);
+  }
+  
+  .edit-link {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+  }
+  
+  .hovered .edit-link {
+    color: #cbd5e1;
+  }
+  
+  /* Delete button */
+  .delete-button {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-radius: 50%;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+    z-index: 20;
+  }
+  
+  .creative-card:hover .delete-button {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .delete-button:hover {
+    background: rgba(239, 68, 68, 0.2);
+  }
+  
+  /* Delete confirmation */
+  .delete-confirmation {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 30;
+    border-radius: 12px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .confirmation-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 1rem;
+  }
+  
+  .confirmation-buttons {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  .confirm-delete-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: #ef4444;
+    color: white;
+    border-radius: 0.375rem;
+    min-width: 6rem;
+    transition: all 0.2s ease;
+  }
+  
+  .confirm-delete-button:hover:not(:disabled) {
+    background: #dc2626;
+  }
+  
+  .confirm-delete-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  
+  .cancel-delete-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 0.375rem;
+    min-width: 6rem;
+    transition: all 0.2s ease;
+  }
+  
+  .cancel-delete-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* Category section styling */
+  .category-section {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+  }
+  
+  .dark .category-section {
+    background-color: rgba(31, 41, 55, 0.5);
+    border-color: rgba(55, 65, 81, 0.5);
+  }
+  
+  .category-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+    opacity: 0.7;
+    border-radius: 2px;
+  }
+  
+  .category-section:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-section h2 {
+    transition: all 0.2s ease;
+  }
+  
+  .category-section:hover h2 {
+    transform: translateX(3px);
+    color: #1e40af;
+  }
+  
+  /* Global background styling */
+  body {
+    background-color: #FAFCFF;
+  }
+  
+  .dark body {
+    background-color: #111827; /* dark:bg-gray-900 */
+  }
+  
+  /* Glass effect for UI elements */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .dark .glass-panel {
+    background: rgba(17, 24, 39, 0.7);
+    border-color: rgba(55, 65, 81, 0.3);
+  }
+  
+  /* Selected card styles */
+  .card-content.selected {
+    border-left-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+  
+  /* Bulk delete confirmation dialog animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .fixed {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  /* Add to existing animations.css */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.2s ease-out forwards;
+  } 
