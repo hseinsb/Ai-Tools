@@ -36,6 +36,24 @@ export async function POST(request: NextRequest) {
     // Add debug log
     console.log("--- STARTING IMPORT PROCESS ---");
 
+    // Get the authenticated user first
+    const user = await getAuthUser();
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Verify Firebase UID exists in the user object
+    if (!user.id) {
+      return NextResponse.json(
+        { success: false, error: "Invalid user credentials" },
+        { status: 403 }
+      );
+    }
+    const userId = user.id; // or user.uid depending on your auth setup
+
     const formData = await request.formData();
     const file = formData.get("file") as File;
     console.log("Received file:", file.name, file.size, file.type);
@@ -80,45 +98,30 @@ export async function POST(request: NextRequest) {
     let skippedCount = 0;
     const importedIds = [];
 
-    const user = await getAuthUser();
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
-      );
-    }
-
-    // Verify Firebase UID exists in the user object
-    if (!user.id) {
-      return NextResponse.json(
-        { success: false, error: "Invalid user credentials" },
-        { status: 403 }
-      );
-    }
-    const userId = user.id; // or user.uid depending on your auth setup
-
-    for (const record of records) {
-      console.log("Processing record:", record);
+    for (const originalRecord of records) {
+      console.log("Processing record:", originalRecord);
 
       // Modify the validation to be more flexible
-      const record = {
-        name: String(record.name || record.Name || "").trim(),
-        category: String(record.category || record.Category || "Other").trim(),
-        description: String(
-          record.description || record.Description || ""
+      const processedRecord = {
+        name: String(originalRecord.name || originalRecord.Name || "").trim(),
+        category: String(
+          originalRecord.category || originalRecord.Category || "Other"
         ).trim(),
-        link: String(record.link || record.Link || "").trim(),
+        description: String(
+          originalRecord.description || originalRecord.Description || ""
+        ).trim(),
+        link: String(originalRecord.link || originalRecord.Link || "").trim(),
       };
 
       // More lenient validation
-      if (!record.name) {
+      if (!processedRecord.name) {
         skippedCount++;
         continue;
       }
 
       // Skip duplicates
-      if (existingTools.includes(record.name.trim().toLowerCase())) {
-        console.log(`Skipping duplicate tool: ${record.name}`);
+      if (existingTools.includes(processedRecord.name.trim().toLowerCase())) {
+        console.log(`Skipping duplicate tool: ${processedRecord.name}`);
         skippedCount++;
         continue;
       }
@@ -126,11 +129,11 @@ export async function POST(request: NextRequest) {
       try {
         // THIS IS CRITICAL: Match EXACT field names from the regular tool creation
         const toolData = {
-          name: record.name,
-          description: record.description,
-          category: record.category,
-          link: record.link,
-          userId: user.uid,
+          name: processedRecord.name,
+          description: processedRecord.description,
+          category: processedRecord.category,
+          link: processedRecord.link,
+          userId: userId,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
         };
@@ -144,20 +147,12 @@ export async function POST(request: NextRequest) {
         );
 
         // Add to Firestore
-        const docRef = await addDoc(collection(db, "tools"), {
-          name: record.name,
-          category: record.category,
-          description: record.description,
-          link: record.link,
-          userId: user.uid,
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
+        const docRef = await addDoc(collection(db, "tools"), toolData);
         console.log(`Created imported tool with ID: ${docRef.id}`);
         importedIds.push(docRef.id);
 
         console.log("Importing for user:", userId);
-        console.log("Processed record:", record);
+        console.log("Processed record:", processedRecord);
         console.log("Created document:", docRef.id);
 
         successCount++;
